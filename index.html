@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Timestamp">
+<title>Timestamp ภาพ</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--tx:#17181c;--mu:#707683;--ac:#3b6cff;--ac2:#e9efff;--bd:#e3e5ea;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e0f12;--card:#191b20;--tx:#eef0f4;--mu:#98a0ad;--ac:#6b93ff;--ac2:#1f2a47;--bd:#2a2d35}}
+:root[data-theme="dark"]{--bg:#0e0f12;--card:#191b20;--tx:#eef0f4;--mu:#98a0ad;--ac:#6b93ff;--ac2:#1f2a47;--bd:#2a2d35}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:16px/1.4 Sarabun,"Noto Sans Thai",system-ui,sans-serif;padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+main{max-width:560px;margin:0 auto;padding:0 14px 14px}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 0}
+header b{font-size:19px;letter-spacing:.2px}
+button,.chip{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px 14px;min-height:46px;cursor:pointer}
+button:active,.chip:active{opacity:.65}
+.chip{display:inline-flex;align-items:center;min-height:38px;padding:6px 14px;font-size:14px;color:var(--ac);border-color:transparent;background:var(--ac2);font-weight:600}
+.pri{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600}
+label.l{display:block;font-size:13px;color:var(--mu);margin:0 0 4px}
+input,textarea,select{font:inherit;width:100%;padding:11px;border:1px solid var(--bd);border-radius:12px;background:var(--bg);color:var(--tx)}
+input[type=range]{padding:0;height:34px;accent-color:var(--ac)}
+input[type=checkbox]{width:20px;height:20px;padding:0;accent-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px;margin-bottom:12px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mb{margin-bottom:12px}
+.ck{display:flex;gap:10px;align-items:center;font-size:15px;margin-bottom:8px}
+.sm{font-size:13px;color:var(--mu)}
+#pick{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:46vh;border:2px dashed var(--bd);border-radius:22px;background:var(--card);cursor:pointer;text-align:center;padding:20px}
+#pick b{font-size:19px}#pick span{color:var(--mu);font-size:14px}
+#work,#bar{display:none}
+#stage{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:8px;text-align:center;margin-bottom:8px}
+canvas{max-width:100%;max-height:55vh;width:auto;height:auto;border-radius:10px;touch-action:none;cursor:grab;display:block;margin:0 auto}
+#strip{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px}
+.th{position:relative;flex:0 0 auto;width:58px;height:58px;border-radius:12px;overflow:hidden;border:2px solid transparent;background:var(--card)}
+.th.on{border-color:var(--ac)}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.th i{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:10px;background:rgba(0,0,0,.6);color:#fff;font-style:normal;font-size:13px;line-height:20px;text-align:center}
+.ck2{position:absolute;right:3px;bottom:3px;width:22px;height:22px;border-radius:11px;background:rgba(0,0,0,.45);border:2px solid #fff;color:#fff;font-size:13px;line-height:18px;text-align:center}
+.th.sel .ck2{background:var(--ac)}
+#help{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;z-index:10}
+#help .sh{background:var(--card);border-radius:22px 22px 0 0;max-height:88vh;overflow:auto;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));width:100%;max-width:560px;margin:0 auto}
+#help h2{font-size:19px;margin:0 0 4px}#help h3{font-size:16px;margin:16px 0 4px;color:var(--ac)}
+#help ol,#help ul{padding-left:20px;margin:4px 0}#help li{margin-bottom:6px;font-size:15px}
+.add{flex:0 0 auto;width:58px;height:58px;border-radius:12px;border:2px dashed var(--bd);display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--mu);cursor:pointer}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:4px;margin-bottom:12px;gap:4px}
+.seg button{border:0;background:transparent;min-height:40px;padding:6px;color:var(--mu);font-weight:600}
+.seg button.on{background:var(--ac);color:#fff}
+.panel{display:none}.panel.on{display:block}
+.opt{min-height:56px}
+.opt.on{border-color:var(--ac);box-shadow:inset 0 0 0 1px var(--ac);color:var(--ac);font-weight:600}
+.sty{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.sty button{padding:6px;min-height:64px;background:linear-gradient(135deg,#3b4658,#9aa5b8);border:2px solid transparent;border-radius:12px;font-weight:600;font-size:15px}
+.sty button.on{border-color:var(--ac)}
+.sty span{display:block;font-size:11px;font-weight:400;color:#fff;margin-top:2px}
+.s-classic i{color:#fff;-webkit-text-stroke:1.5px #000;paint-order:stroke fill;font-style:normal}
+.s-box i{color:#fff;background:rgba(0,0,0,.55);padding:1px 6px;border-radius:5px;font-style:normal}
+.s-yellow i{color:#ffd60a;-webkit-text-stroke:1.5px #000;paint-order:stroke fill;font-style:normal}
+.s-minimal i{color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.8);font-style:normal;font-weight:400}
+.s-label i{color:#111;background:rgba(255,255,255,.88);padding:1px 6px;border-radius:5px;font-style:normal}
+#bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--bd);padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));z-index:5}
+#bar .in{max-width:560px;margin:0 auto;display:grid;gap:8px;grid-template-columns:1fr}
+#bar .in.two{grid-template-columns:1fr 1fr}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;flex-direction:column;align-items:center;padding:16px;gap:12px;z-index:9;overflow-y:auto}
+#modal img{max-width:100%;border-radius:8px}
+#modal p{color:#fff;margin:0;text-align:center}
+#msg{font-size:13px;color:var(--ac);min-height:18px;margin:4px 0 0}
+</style>
+</head>
+<body>
+<main>
+<header><b>📷 Timestamp</b><div style="display:flex;gap:8px"><button class="chip" id="helpBtn">❓ วิธีใช้</button><label class="chip" for="fl" id="chg" style="display:none">เปลี่ยนภาพ</label></div></header>
+<input id="fl" type="file" accept="image/*" multiple hidden>
+<input id="fl2" type="file" accept="image/*" multiple hidden>
+
+<label id="pick" for="fl"><div style="font-size:48px">🖼️</div><b>แตะเพื่อเลือกภาพจากแกลเลอรี</b><span>เลือกได้หลายภาพพร้อมกัน</span></label>
+
+<div id="work">
+  <div id="stage"><canvas id="cv"></canvas></div>
+  <div id="selbar" class="sm" style="display:none;justify-content:space-between;align-items:center;margin-bottom:6px"><span>แตะภาพที่ต้องการบันทึก</span><button class="chip" id="selAll">เลือกทั้งหมด</button></div>
+  <div id="strip"></div>
+
+  <div class="seg" id="tabs"><button data-t="t1" class="on">ข้อความ</button><button data-t="t2">สไตล์</button><button data-t="t3">ตำแหน่ง</button></div>
+
+  <section id="t1" class="panel on card">
+    <label class="l">วันที่-เวลา (ภาพนี้)</label>
+    <input id="dt" type="datetime-local" step="1" class="mb">
+    <div class="g2 mb"><button id="now">ตอนนี้</button><button id="orig">เวลาของภาพ</button></div>
+    <label class="l">รูปแบบวันที่</label>
+    <select id="fmt" class="mb">
+      <option value="th-long">9 พฤศจิกายน 2569 เวลา 22:42 (ไทย พ.ศ.)</option>
+      <option value="th-short">09/11/2569 22:42 (พ.ศ.)</option>
+      <option value="en-long">9 November 2026, 22:42</option>
+      <option value="en-short">09/11/2026 22:42 (ค.ศ.)</option>
+      <option value="iso">2026-11-09 22:42</option>
+    </select>
+    <div class="ck"><input id="sec" type="checkbox"><label for="sec">แสดงวินาที</label></div>
+    <label class="l" style="margin-top:12px">สถานที่ (ไม่บังคับ)</label>
+    <input id="loc" placeholder="เช่น จ.ยะลา,อ.เมืองยะลา,ต.สะเตงนอก" class="mb">
+    <div class="g2 mb"><button id="gloc">📍 พิกัดมือถือ</button><button id="clr">ล้างสถานที่</button></div>
+    <div class="ck"><input id="usegps" type="checkbox"><label for="usegps">ใส่พิกัด GPS จากภาพ (ถ้ามี)</label></div>
+    <div class="sm" id="gpsinfo"></div>
+    <div id="msg"></div>
+    <label class="l" style="margin-top:12px">ข้อความบนภาพ (พิมพ์แก้ได้อิสระ)</label>
+    <textarea id="txt" rows="3"></textarea>
+    <button id="auto" style="margin-top:8px;width:100%">↺ สร้างข้อความอัตโนมัติใหม่</button>
+  </section>
+
+  <section id="t2" class="panel card">
+    <label class="l">สไตล์</label>
+    <div class="sty" id="sty"></div>
+    <label class="l">ขนาดตัวอักษร</label>
+    <input id="size" type="range" min="1" max="9" step="0.1" class="mb">
+    <div class="ck"><input id="bold" type="checkbox"><label for="bold">ตัวหนา</label></div>
+    <button id="reset" style="width:100%;margin-top:6px">รีเซ็ตการตั้งค่าทั้งหมด</button>
+  </section>
+
+  <section id="t3" class="panel card">
+    <label class="l">ตำแหน่ง (ใช้กับทุกภาพ)</label>
+    <div class="g2 mb">
+      <button class="opt" data-p="tl">↖ ซ้ายบน</button><button class="opt" data-p="tr">↗ ขวาบน</button>
+      <button class="opt" data-p="bl">↙ ซ้ายล่าง</button><button class="opt" data-p="br">↘ ขวาล่าง</button>
+    </div>
+    <div class="sm">หรือลากข้อความบนภาพเพื่อย้ายเฉพาะภาพนั้น</div>
+  </section>
+</div>
+</main>
+
+<div id="bar"><div class="in" id="barin"><button class="pri" id="saveOne">💾 บันทึก / แชร์ภาพ</button><button id="selBtn" style="display:none">☑ เลือกภาพ</button><button class="pri" id="saveAll" style="display:none"></button><button class="pri" id="saveSel" style="display:none"></button></div></div>
+
+<div id="help"><div class="sh"><h2>วิธีใช้บนมือถือ</h2><div class="sm">ใช้ได้ทั้ง iPhone และ Android</div>
+<h3>1. เพิ่มไว้บนหน้าจอโฮม (เปิดใช้เหมือนแอป)</h3>
+<ul><li><b>iPhone:</b> เปิดลิงก์ด้วย <b>Safari</b> แตะปุ่มแชร์ (สี่เหลี่ยมมีลูกศรขึ้น) เลือก “เพิ่มไปยังหน้าจอโฮม” แล้วกด “เพิ่ม”</li>
+<li><b>Android:</b> เปิดลิงก์ด้วย <b>Chrome</b> แตะเมนู ⋮ เลือก “เพิ่มไปยังหน้าจอหลัก” หรือ “ติดตั้งแอป”</li>
+<li>ถ้าได้ลิงก์ผ่าน LINE ให้กดเปิดในเบราว์เซอร์ (Safari/Chrome) ก่อน แล้วค่อยเพิ่มไปหน้าจอโฮม</li></ul>
+<h3>2. ขั้นตอนใส่ Timestamp</h3>
+<ol><li>แตะ “เลือกภาพจากแกลเลอรี” (เลือกได้หลายภาพ)</li>
+<li>แท็บ <b>ข้อความ</b>: ตั้งวันที่-เวลา รูปแบบ และสถานที่</li>
+<li>แท็บ <b>สไตล์</b>: เลือกแบบและขนาดตัวอักษร</li>
+<li>แท็บ <b>ตำแหน่ง</b>: เลือกมุม หรือลากข้อความบนภาพ</li>
+<li>กดปุ่มบันทึกด้านล่าง</li></ol>
+<h3>3. บันทึกลงเครื่อง</h3>
+<ul><li><b>iPhone:</b> กดบันทึก แล้วเลือก “บันทึกรูปภาพ” ในเมนูแชร์ ถ้าไม่มีเมนู ให้กดค้างที่ภาพแล้วเลือก “เพิ่มไปยังรูปภาพ”</li>
+<li><b>Android:</b> เลือกบันทึกในเมนูแชร์ หรือกดค้างที่ภาพแล้วดาวน์โหลด</li></ul>
+<h3>4. หลายภาพ</h3>
+<ul><li><b>ภาพนี้:</b> บันทึกภาพที่แสดงอยู่</li><li><b>เลือกภาพ:</b> แตะภาพย่อที่ต้องการ แล้วกด “ที่เลือก”</li><li><b>ทั้งหมด:</b> บันทึกทุกภาพในครั้งเดียว</li></ul>
+<h3>5. พิกัด GPS</h3>
+<ul><li>iPhone: ตอนเลือกภาพ กด “ตัวเลือก” แล้วเปิด “ตำแหน่งที่ตั้ง” จึงจะอ่านพิกัดจากภาพได้</li><li>พิกัดแสดงเป็นตัวเลข ชื่อสถานที่ต้องพิมพ์เอง</li></ul>
+<button class="pri" id="hclose" style="width:100%;margin-top:12px">เข้าใจแล้ว</button></div></div>
+<div id="modal"><p>กดค้างที่ภาพ แล้วเลือก “เพิ่มไปยังรูปภาพ” (iPhone)<br>หรือกดค้างแล้วดาวน์โหลด (Android)</p><div id="outs" style="display:flex;flex-direction:column;gap:12px;align-items:center"></div><button id="close">ปิด</button></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const cv=$('cv');
+const FONT='Sarabun,"Noto Sans Thai",sans-serif';
+const MT=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const ME=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const p2=n=>String(n).padStart(2,'0');
+const tm=(d,s)=>p2(d.getHours())+':'+p2(d.getMinutes())+(s?':'+p2(d.getSeconds()):'');
+const FMT={
+ 'th-long':(d,s)=>`${d.getDate()} ${MT[d.getMonth()]} ${d.getFullYear()+543} เวลา ${tm(d,s)}`,
+ 'th-short':(d,s)=>`${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()+543} ${tm(d,s)}`,
+ 'en-long':(d,s)=>`${d.getDate()} ${ME[d.getMonth()]} ${d.getFullYear()}, ${tm(d,s)}`,
+ 'en-short':(d,s)=>`${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()} ${tm(d,s)}`,
+ 'iso':(d,s)=>`${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())} ${tm(d,s)}`
+};
+const STY={
+ classic:{n:'ขาวขอบดำ',fill:'#fff',stroke:'#000',sw:.14},
+ box:{n:'กล่องดำ',fill:'#fff',box:1,bg:'rgba(0,0,0,.55)'},
+ yellow:{n:'เหลือง',fill:'#ffd60a',stroke:'#000',sw:.14},
+ minimal:{n:'มินิมอล',fill:'#fff',shadow:1,w:400},
+ label:{n:'ป้ายขาว',fill:'#111',box:1,bg:'rgba(255,255,255,.88)'}
+};
+const S0={style:'classic',size:2.4,bold:false,fmt:'th-long',sec:true,loc:'',usegps:false,preset:'tr'};
+let S={...S0};
+try{Object.assign(S,JSON.parse(localStorage.getItem('ts_settings2')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('ts_settings2',JSON.stringify(S))}catch(e){}};
+let items=[],cur=0,selMode=false,sel=new Set();
+
+// ---------- EXIF ----------
+function readExif(buf){
+  const v=new DataView(buf);
+  if(v.getUint16(0)!==0xFFD8)return {};
+  let o=2;
+  while(o<v.byteLength-4){
+    const m=v.getUint16(o);
+    if((m&0xFF00)!==0xFF00)break;
+    if(m===0xFFE1&&v.getUint32(o+4)===0x45786966)return parseTiff(v,o+10);
+    o+=2+v.getUint16(o+2);
+  }
+  return {};
+}
+function parseTiff(v,t){
+  const le=v.getUint16(t)===0x4949,u16=o=>v.getUint16(o,le),u32=o=>v.getUint32(o,le);
+  const ifd=off=>{const o=t+off,n=u16(o),r={};for(let i=0;i<n;i++){const e=o+2+i*12;r[u16(e)]={cnt:u32(e+4),val:e+8}}return r};
+  const str=e=>{const off=e.cnt>4?t+u32(e.val):e.val;let s='';for(let i=0;i<e.cnt-1;i++)s+=String.fromCharCode(v.getUint8(off+i));return s};
+  const r3=e=>{const off=t+u32(e.val),r=[];for(let i=0;i<3;i++)r.push(u32(off+i*8)/(u32(off+i*8+4)||1));return r};
+  const i0=ifd(u32(t+4)),out={};
+  if(i0[0x8769]){const ex=ifd(u32(i0[0x8769].val)),e=ex[0x9003]||ex[0x9004];
+    if(e){const m=str(e).match(/(\d+):(\d+):(\d+) (\d+):(\d+):(\d+)/);if(m)out.date=new Date(+m[1],m[2]-1,+m[3],+m[4],+m[5],+m[6])}}
+  if(i0[0x8825]){const g=ifd(u32(i0[0x8825].val));
+    if(g[2]&&g[4]){const a=r3(g[2]),b=r3(g[4]);let la=a[0]+a[1]/60+a[2]/3600,lo=b[0]+b[1]/60+b[2]/3600;
+      if(g[1]&&str(g[1])==='S')la=-la;if(g[3]&&str(g[3])==='W')lo=-lo;
+      if(isFinite(la)&&isFinite(lo)&&(la||lo))out.gps=`พิกัด ${la.toFixed(5)}, ${lo.toFixed(5)}`}}
+  return out;
+}
+
+// ---------- text & render ----------
+function autoText(it){
+  const l=[FMT[S.fmt](it.date,S.sec)];
+  if(S.loc.trim())l.push(S.loc.trim());
+  if(S.usegps&&it.gps)l.push(it.gps);
+  return l.join('\n');
+}
+const textOf=it=>it.custom!=null?it.custom:autoText(it);
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+function render(it,c){
+  const im=it.im,W=c.width=im.naturalWidth,H=c.height=im.naturalHeight,x=c.getContext('2d');
+  x.drawImage(im,0,0);
+  const st=STY[S.style]||STY.classic,L=textOf(it).split('\n'),fs=W*S.size/100,pad=st.box?fs*.35:0;
+  x.font=`${S.bold?600:(st.w||400)} ${fs}px ${FONT}`;
+  const mw=Math.max(...L.map(l=>x.measureText(l).width)),bw=mw+pad*2,bh=pad*2+fs+(L.length-1)*fs*1.3+fs*.3,mg=W*.025,p=it.pos;
+  let al,ax,ay;
+  if(p.preset){al=p.preset[1]==='r'?'right':'left';ax=al==='right'?W-mg:mg;ay=p.preset[0]==='t'?mg:H-mg-bh}
+  else{al=p.align;ax=p.ax*W;ay=p.ay*H}
+  it.geo={align:al,ax:ax/W,ay:ay/H};
+  if(st.box){x.fillStyle=st.bg;rr(x,al==='right'?ax-bw:ax,ay,bw,bh,fs*.3);x.fill()}
+  const tx=al==='right'?ax-pad:ax+pad;
+  x.textAlign=al;x.lineJoin='round';
+  if(st.shadow){x.shadowColor='rgba(0,0,0,.7)';x.shadowBlur=fs*.25;x.shadowOffsetY=fs*.04}
+  L.forEach((l,i)=>{const y=ay+pad+fs+i*fs*1.3;
+    if(st.sw){x.lineWidth=fs*st.sw;x.strokeStyle=st.stroke;x.strokeText(l,tx,y)}
+    x.fillStyle=st.fill;x.fillText(l,tx,y)});
+  x.shadowColor='transparent';
+}
+const draw=()=>{if(items[cur])render(items[cur],cv)};
+
+// ---------- UI sync ----------
+const toLocal=d=>`${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}T${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())}`;
+function syncAll(){
+  const it=items[cur];if(!it)return;
+  $('dt').value=toLocal(it.date);
+  $('txt').value=textOf(it);
+  $('fmt').value=S.fmt;$('sec').checked=S.sec;$('loc').value=S.loc;$('usegps').checked=S.usegps;
+  $('size').value=S.size;$('bold').checked=S.bold;
+  $('gpsinfo').textContent=it.gps?`พบพิกัดในภาพนี้: ${it.gps.replace('พิกัด ','')}`:'ภาพนี้ไม่มีพิกัด (iPhone: ตอนเลือกภาพ กด “ตัวเลือก” แล้วเปิด “ตำแหน่งที่ตั้ง”)';
+  document.querySelectorAll('[data-p]').forEach(b=>b.classList.toggle('on',it.pos.preset===b.dataset.p));
+  document.querySelectorAll('#sty button').forEach(b=>b.classList.toggle('on',b.dataset.s===S.style));
+  draw();
+}
+function buildStyles(){
+  $('sty').innerHTML='';
+  Object.keys(STY).forEach(k=>{
+    const b=document.createElement('button');b.dataset.s=k;b.className='s-'+k;
+    b.innerHTML=`<i>12:30</i><span>${STY[k].n}</span>`;
+    b.onclick=()=>{S.style=k;save();syncAll()};
+    $('sty').appendChild(b);
+  });
+}
+function buildStrip(){
+  const s=$('strip');s.innerHTML='';
+  items.forEach((it,i)=>{
+    const d=document.createElement('div');d.className='th'+(i===cur&&!selMode?' on':'')+(selMode&&sel.has(it)?' sel':'');
+    d.innerHTML=`<img src="${it.url}" alt="">`+(selMode?`<b class="ck2">${sel.has(it)?'✓':''}</b>`:'');
+    d.onclick=()=>{if(selMode){sel.has(it)?sel.delete(it):sel.add(it);buildStrip();bar();return}cur=i;buildStrip();syncAll()};
+    if(items.length>1&&!selMode){const x=document.createElement('i');x.textContent='×';
+      x.onclick=e=>{e.stopPropagation();items.splice(i,1);cur=Math.min(cur,items.length-1);buildStrip();syncAll();bar()};d.appendChild(x)}
+    s.appendChild(d);
+  });
+  const a=document.createElement('label');a.className='add';a.htmlFor='fl2';a.textContent='+';s.appendChild(a);
+}
+function bar(){
+  const n=items.length,sc=items.filter(i=>sel.has(i)).length,show=(id,v)=>$(id).style.display=v?'block':'none';
+  if(n<2)selMode=false;
+  show('saveOne',!selMode);show('saveAll',n>1&&!selMode);show('selBtn',n>1);show('saveSel',selMode);
+  $('saveOne').textContent=n>1?'💾 ภาพนี้':'💾 บันทึก / แชร์ภาพ';
+  $('saveAll').textContent=`💾 ทั้งหมด (${n})`;
+  $('selBtn').textContent=selMode?'ยกเลิก':'☑ เลือกภาพ';
+  $('saveSel').textContent=`💾 ที่เลือก (${sc})`;
+  $('saveSel').disabled=!sc;
+  $('selbar').style.display=selMode?'flex':'none';
+  $('barin').style.gridTemplateColumns=`repeat(${n<2?1:(selMode?2:3)},1fr)`;
+}
+
+// ---------- load files ----------
+async function addFiles(files,replace){
+  files=[...files];if(!files.length)return;
+  if(replace){items=[];cur=0}
+  const first=items.length;
+  for(const f of files){
+    let ex={};try{ex=readExif(await f.slice(0,262144).arrayBuffer())}catch(e){}
+    const url=URL.createObjectURL(f);
+    const im=await new Promise(ok=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=url});
+    if(!im)continue;
+    const d=ex.date||new Date(f.lastModified||Date.now());
+    items.push({im,url,date:d,orig:d,gps:ex.gps||null,custom:null,pos:{preset:S.preset}});
+  }
+  if(!items.length)return;
+  cur=Math.min(first,items.length-1);
+  $('pick').style.display='none';$('work').style.display='block';$('bar').style.display='block';$('chg').style.display='inline-flex';
+  buildStrip();bar();syncAll();
+  if(document.fonts)document.fonts.load(`600 40px Sarabun`,'ก').then(draw).catch(()=>{});
+}
+$('fl').onchange=e=>{addFiles(e.target.files,true);e.target.value=''};
+$('fl2').onchange=e=>{addFiles(e.target.files,false);e.target.value=''};
+
+// ---------- controls ----------
+const clearCustom=()=>items.forEach(i=>i.custom=null);
+$('dt').oninput=e=>{const d=new Date(e.target.value);if(isNaN(d))return;const it=items[cur];it.date=d;it.custom=null;$('txt').value=textOf(it);draw()};
+$('now').onclick=()=>{const it=items[cur];it.date=new Date();it.custom=null;syncAll()};
+$('orig').onclick=()=>{const it=items[cur];it.date=it.orig;it.custom=null;syncAll()};
+$('fmt').onchange=e=>{S.fmt=e.target.value;save();clearCustom();syncAll()};
+$('sec').onchange=e=>{S.sec=e.target.checked;save();clearCustom();syncAll()};
+$('loc').oninput=e=>{S.loc=e.target.value;save();clearCustom();$('txt').value=textOf(items[cur]);draw()};
+$('clr').onclick=()=>{S.loc='';save();clearCustom();syncAll()};
+$('usegps').onchange=e=>{S.usegps=e.target.checked;save();clearCustom();syncAll()};
+$('gloc').onclick=()=>{
+  const m=$('msg');m.textContent='กำลังอ่านตำแหน่ง...';
+  if(!navigator.geolocation){m.textContent='เครื่องนี้ไม่รองรับการอ่านตำแหน่ง';return}
+  navigator.geolocation.getCurrentPosition(p=>{
+    S.loc=`พิกัด ${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`;save();clearCustom();syncAll();m.textContent='ใส่พิกัดแล้ว (แสดงเป็นตัวเลข ไม่แปลงเป็นชื่อสถานที่)';
+  },()=>{m.textContent='อ่านตำแหน่งไม่ได้ (ยังไม่ได้อนุญาต หรือหน้านี้ไม่รองรับ) พิมพ์สถานที่เองได้เลย'},{enableHighAccuracy:true,timeout:10000});
+};
+$('txt').oninput=e=>{items[cur].custom=e.target.value;draw()};
+$('auto').onclick=()=>{items[cur].custom=null;syncAll()};
+$('size').oninput=e=>{S.size=+e.target.value;save();draw()};
+$('bold').onchange=e=>{S.bold=e.target.checked;save();draw()};
+$('reset').onclick=()=>{S={...S0};save();clearCustom();items.forEach(i=>i.pos={preset:S.preset});syncAll()};
+document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{S.preset=b.dataset.p;save();items.forEach(i=>i.pos={preset:S.preset});syncAll()});
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id===b.dataset.t));
+});
+
+// ---------- drag ----------
+let drag=null;
+cv.addEventListener('pointerdown',e=>{
+  const it=items[cur];if(!it)return;
+  if(it.pos.preset){it.pos={align:it.geo.align,ax:it.geo.ax,ay:it.geo.ay};document.querySelectorAll('[data-p]').forEach(b=>b.classList.remove('on'))}
+  drag={x:e.clientX,y:e.clientY};cv.setPointerCapture(e.pointerId);
+});
+cv.addEventListener('pointermove',e=>{
+  if(!drag)return;const r=cv.getBoundingClientRect(),p=items[cur].pos;
+  p.ax+=(e.clientX-drag.x)/r.width;p.ay+=(e.clientY-drag.y)/r.height;
+  drag={x:e.clientX,y:e.clientY};draw();
+});
+['pointerup','pointercancel'].forEach(t=>cv.addEventListener(t,()=>drag=null));
+
+// ---------- save ----------
+async function exportItems(list){
+  const files=[],urls=[];
+  for(let i=0;i<list.length;i++){
+    const c=document.createElement('canvas');render(list[i],c);
+    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.95));
+    files.push(new File([b],`timestamp_${Date.now()}_${i+1}.jpg`,{type:'image/jpeg'}));urls.push(URL.createObjectURL(b));
+  }
+  try{if(navigator.canShare&&navigator.canShare({files})){await navigator.share({files});return}}
+  catch(e){if(e.name==='AbortError')return}
+  $('outs').innerHTML=urls.map(u=>`<img src="${u}" alt="">`).join('');
+  $('modal').style.display='flex';
+}
+$('saveOne').onclick=()=>items[cur]&&exportItems([items[cur]]);
+$('saveAll').onclick=()=>items.length&&exportItems(items);
+$('selBtn').onclick=()=>{selMode=!selMode;if(selMode)sel=new Set([items[cur]]);buildStrip();bar()};
+$('selAll').onclick=()=>{sel=sel.size===items.length?new Set():new Set(items);buildStrip();bar()};
+$('saveSel').onclick=()=>{const l=items.filter(i=>sel.has(i));if(l.length)exportItems(l)};
+$('helpBtn').onclick=()=>$('help').style.display='flex';
+$('hclose').onclick=()=>$('help').style.display='none';
+$('help').onclick=e=>{if(e.target.id==='help')$('help').style.display='none'};
+$('close').onclick=()=>$('modal').style.display='none';
+
+buildStyles();
+</script>
+</body>
+</html>
